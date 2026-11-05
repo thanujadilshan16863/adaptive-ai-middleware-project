@@ -1,0 +1,8 @@
+.venv
+.python
+.cache
+.env
+data
+outputs
+*.docx
+frontend/node_modules

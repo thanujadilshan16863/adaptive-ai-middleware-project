@@ -1,0 +1,13 @@
+.venv/
+.python/
+.cache/
+__pycache__/
+.pytest_cache/
+.env
+*.db
+data/
+outputs/
+/KIC-BSCCSAI-251P-050.docx
+/NB6001CEM.pdf
+node_modules/
+frontend/dist/

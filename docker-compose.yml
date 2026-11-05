@@ -1,0 +1,60 @@
+services:
+  api:
+    build:
+      context: .
+      args:
+        WITH_CHRONOS: ${WITH_CHRONOS:-false}
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://middleware:${POSTGRES_PASSWORD:-local-development-only}@db:5432/middleware
+      FORECAST_MODE: ${FORECAST_MODE:-offline}
+      FORECAST_STRATEGY: ${FORECAST_STRATEGY:-adaptive}
+      JOB_DIRECTORY: /app/state/jobs
+      DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-local}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.openai.com/v1}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4o-mini}
+      LLM_JSON_SCHEMA: ${LLM_JSON_SCHEMA:-true}
+      LLM_REQUIRED: ${LLM_REQUIRED:-false}
+      CHRONOS_MODEL: ${CHRONOS_MODEL:-autogluon/chronos-bolt-small}
+      CHRONOS_DEVICE: cpu
+      CHRONOS_BATCH_SIZE: ${CHRONOS_BATCH_SIZE:-32}
+      CHRONOS_CACHE_DIR: /app/state/huggingface
+      CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost:5173","http://127.0.0.1:5173"]}
+      API_KEY: ${API_KEY:-}
+    volumes:
+      - model_cache:/app/state
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-8082}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: middleware
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-development-only}
+      POSTGRES_DB: middleware
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U middleware"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  postgres_data:
+  model_cache:

@@ -1,0 +1,3 @@
+-r requirements.txt
+chronos-forecasting>=2.2,<3
+torch>=2.2,<3

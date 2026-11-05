@@ -1,0 +1,13 @@
+# Reproducible benchmark override; does not edit the local application configuration.
+services:
+  api:
+    build:
+      args:
+        WITH_CHRONOS: "true"
+    environment:
+      FORECAST_MODE: chronos
+      FORECAST_STRATEGY: fixed
+      LLM_REQUIRED: "true"
+      CHRONOS_CACHE_DIR: /app/evaluation-model-cache
+    volumes:
+      - ./.cache/huggingface:/app/evaluation-model-cache

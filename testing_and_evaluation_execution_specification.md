@@ -1,0 +1,85 @@
+# Adaptive AI Middleware Framework: Comprehensive Testing & Evaluation Protocol
+
+**Student:** R. A. N. M. T. D. Nawarathne (`KIC-BSCCSAI-25.1P-050` | Coventry ID: `17167851`)  
+**Institution:** Kandy Innovation Centre, National Institute of Business Management (NIBM)  
+**Target Output Directory:** `./outputs/` (Containing subdirectories `/tables/` and `/figures/`)
+
+---
+
+## 1. Objective of This Specification
+This document defines the complete experimental evaluation protocol for the **Adaptive AI Middleware Framework**. Because the system implementation is now finished, this specification instructs the executing AI model (GPT) to run automated benchmark scripts against your core engine and test datasets (`canonical_automotive_inventory_master.csv`, `erp_export_tier1_synonyms.csv`, `erp_export_tier2_jargon.csv`, `erp_export_tier3_cryptic.csv`), compute rigorous quantitative metrics, and export publication-ready artifacts directly into the `./outputs/` folder.
+
+---
+
+## 2. Required Execution Workflow (`run_all_experiments.py`)
+
+The executing AI must create or run a master script named `run_all_experiments.py` inside the project root that executes three core test suites and saves results to `./outputs/tables/` and `./outputs/figures/`.
+
+---
+
+### Test Suite 1: LLM Schema Alignment Evaluation (Exp 1)
+* **Goal:** Evaluate Phase 2 (LLM Schema Mapping) across the three provided ERP export test files (`erp_export_tier1_synonyms.csv`, `erp_export_tier2_jargon.csv`, `erp_export_tier3_cryptic.csv`).
+* **Methods to Compare:**
+  1. *Fuzzy String Matching Heuristic* (Baseline)
+  2. *Header-Only LLM Mapping* (Llama-3 / GPT via API)
+  3. *Hybrid Metadata + Instance Profiling LLM Mapping* (Proposed Method: Headers + Pandas dtype + null ratio + 3 sample values + Pydantic validation retry loop)
+* **Metrics to Calculate:**
+  * Field-Level Precision, Recall, and F1-Score for mapping canonical keys (`part_id`, `transaction_date`, `quantity_sold`).
+  * Exact Schema Match Rate (%).
+  * API Latency (ms).
+* **Required Output File:** 
+  * `./outputs/tables/table_4_1_schema_benchmark.csv`
+
+---
+
+### Test Suite 2: Intermittent Demand Forecasting & Inventory Simulation (Exp 2)
+* **Goal:** Evaluate Phase 3, 4, and 5 (Demand Classification, Chronos-Bolt Zero-Shot Inference, and Quantile Replenishment) using `canonical_automotive_inventory_master.csv` (split into 80% training history, 20% test horizon).
+* **Demand Regime Classification:**
+  * Automatically compute $ADI$ and $CV^2$ for all SKUs and classify them into Syntetos–Boylan quadrants: *Smooth, Erratic, Intermittent, Lumpy*.
+* **Models to Compare:**
+  * *Seasonal Naive* (Baseline)
+  * *Croston's Method*
+  * *Syntetos–Boylan Approximation (SBA)* (Industry Standard)
+  * *Chronos-Bolt-Small* (Zero-Shot Foundation Model)
+* **Metrics to Calculate:**
+  * **MAE**, **RMSE**, **MASE**, **RMSSE** (Root Mean Squared Scaled Error).
+  * **Weighted Quantile Loss (Pinball Loss at** $q=0.90$**)**.
+  * **Simulated Fill Rate (%)** and **Average Inventory Holding Volume** (Comparing Median point forecast $q=0.50$ vs Quantile replenishment $q=0.90$ vs SBA).
+* **Required Output Files:**
+  * `./outputs/tables/table_3_1_dataset_outline.csv` (Dataset summary and regime counts)
+  * `./outputs/tables/table_4_2_forecasting_metrics_by_regime.csv` (Error metrics by regime)
+  * `./outputs/tables/table_4_3_inventory_service_simulation.csv` (Inventory simulation results)
+
+---
+
+### Test Suite 3: End-to-End Middleware Latency & Resource Stress Test (Exp 3)
+* **Goal:** Measure system performance across the containerized middleware architecture (FastAPI + PostgreSQL + Docker).
+* **Batch Workloads:**
+  * *Small Batch:* 10 SKUs (~7,300 rows)
+  * *Medium Batch:* 100 SKUs (~73,000 rows)
+  * *Large Batch:* 200 SKUs (~146,000 rows)
+* **Metrics to Record:**
+  * Wall-clock execution time (ms) broken down by phase: (1) Validation & Parsing, (2) LLM Schema Mapping, (3) PostgreSQL DB Insertion, (4) Chronos-Bolt Inference & Reorder Math.
+  * Peak Docker RAM consumption (MB).
+* **Required Output File:**
+  * `./outputs/tables/table_4_4_system_latency_benchmark.csv`
+
+---
+
+## 3. Required Output Figures (For Chapter 4 Report)
+
+The script must generate and save the following 5 high-resolution (300 DPI) figures to `./outputs/figures/`:
+
+1. **`fig_4_1_missing_and_zeros.png`**: Time-series sparsity plot showing zero-inflation across a lumpy automotive spare part SKU.
+2. **`fig_4_2_syntetos_boylan_quadrants.png`**: Log-log scatter plot of $ADI$ vs $CV^2$ categorizing all SKUs into *Smooth, Erratic, Intermittent, and Lumpy* quadrants with threshold lines ($ADI=1.32, CV^2=0.49$).
+3. **`fig_4_3_schema_mapping_f1.png`**: Grouped bar chart comparing F1-score across Tiers 1, 2, and 3 for Fuzzy, Header-Only, and Hybrid LLM mappers.
+4. **`fig_4_4_forecast_comparison_lumpy_sku.png`**: Multi-step probabilistic quantile fan chart ($q_{0.10}$ to $q_{0.90}$) generated by Chronos-Bolt versus actual sparse sales and SBA baseline.
+5. **`fig_4_5_middleware_latency_breakdown.png`**: Stacked bar chart showing phase-by-phase latency scaling across 10, 100, and 200 SKUs.
+
+---
+
+## 4. Instructions for Your Coding GPT
+
+When you prompt your coding GPT with this markdown file, use the following instruction:
+
+> *"Please read `TESTING_AND_EVALUATION_SPECIFICATION.md` completely. Write and execute the Python script `run_all_experiments.py` using our implemented system and the test datasets in the root directory. Ensure all required CSV tables and PNG figures are successfully generated and saved into the `./outputs/tables/` and `./outputs/figures/` folders so I can review them."*
